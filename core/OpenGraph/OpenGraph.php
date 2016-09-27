@@ -84,12 +84,12 @@ class OpenGraph
 		// Twitter
 		/*
 		twitter:title: Same as "og:title".
-twitter:url: Sames as "ug:url".
-twitter:site: The website twitter account.
-twitter:creator: From the user (post author) Twitter account.
-twitter:description: Same as "og:description".
-twitter:image:src: Same as "og:image".
-twitter:card:src: With value "summary_large_image" or "summary".*/
+		twitter:url: Sames as "ug:url".
+		twitter:site: The website twitter account.
+		twitter:creator: From the user (post author) Twitter account.
+		twitter:description: Same as "og:description".
+		twitter:image:src: Same as "og:image".
+		twitter:card:src: With value "summary_large_image" or "summary".*/
 		
 		
 		return in_array($property, $propertyList);

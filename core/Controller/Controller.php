@@ -44,6 +44,7 @@ class Controller
         
     }
 
+	// Cette fonction est peut-être inutile (à voir sur le long terme)
     protected function renderJson($view, $variables = [])
     {
         $content = '';

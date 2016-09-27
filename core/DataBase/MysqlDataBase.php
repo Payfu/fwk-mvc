@@ -10,7 +10,7 @@ use Core\Config;
 /**
  * Description of DataBase
  *
- * @author payfu
+ * @author EmmCall
  */
 class MysqlDataBase extends DataBase
 {
@@ -52,7 +52,6 @@ class MysqlDataBase extends DataBase
         if($this->pdo === null)
         {
             $options = array( PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',);
-            //$pdo = new PDO('mysql:dbname=db_mesrecettesperso;host=localhost', 'root', '');
             $pdo = new PDO('mysql:dbname='.$this->db_name.';host='.$this->db_host, $this->db_user, $this->db_pass, $options);
             // La méthode setAttribute permet d'afficher les erreurs
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
