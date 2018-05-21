@@ -5,9 +5,12 @@ use App;
 
 use Core\ { 
             Controller\Controller, // Appel pour la méthode render(); 
-            HTML\BootstrapForm, 
-            Tools\Tools
+            Tools\Tools,
+            Login\Login
             };
+
+//use Core\Auth\ApiAuthUser;
+
 
 /**
  * Description of HomeController
@@ -33,17 +36,24 @@ class HomeController extends AppController
      */
     public function index()
     {
+     
+     // Afficher les erreurs à l'écran
+     ini_set('display_errors', 1);
+     
+     
+        if(is_null(self::$_instanceTools)){ self::$_instanceTools = new Login(); }
+        $token = self::$_instanceTools->getToken();
 
-        
-        if(is_null(self::$_instanceTools)){ self::$_instanceTools = new Tools();}
-        $tools = self::$_instanceTools;
+
+
+        print($token);
 
         // Meta donnée
         $metaTitle = App::getInstance()->title;
         $metaDescription = App::getInstance()->description;
 
         // Form Contact
-        $form = new BootstrapForm($_POST);
+        //$form = new BootstrapForm($_POST);
 
         // Appel des script JS et CSS
         $scripts = $this->scripts([ 
@@ -54,7 +64,7 @@ class HomeController extends AppController
 		'simple-lightbox.js', 
 		'contact.js']);
 	    
-        $data = array_merge($scripts, compact( 'form', 'metaTitle', 'metaDescription'));
+        $data = array_merge($scripts, compact( 'metaTitle', 'metaDescription', 'token'));
 
         // On envoi un tableau créé avec compact()
         $this->render('home.index', $data);
