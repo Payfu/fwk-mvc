@@ -1,11 +1,4 @@
 <?php
-/*
- *
- * 15-06-2016 : Ajoute de findByFunction()
- *
- */
-
-
 namespace Core\Table;
 /**
  * J'appel pour le constructeur la connexion à la base de données se trouvant dans Core
@@ -42,19 +35,30 @@ class Table
     }
     
     /**
-     * On va chercher un résultat sur un seul champ
+     * On va chercher un résultat sur un ou pluieurs champs
      * 
-     * @param array $tab : field => value
+     * @param array $where : field => value
      * @return false s'il ne trouve rien
      */
-    public function find($tab = [])
+    public function find($where = [])
     {
-
-        $field = key($tab);
+      foreach($where as $k => $v){
+        $attr_part[] = "$k = ?";
         
-        return $this->query("SELECT * FROM {$this->table} WHERE {$field} = ? ", [$tab[$field]], true ); // True : retourne un seul enregistrement
+        /*
+        if(is_null($v)){
+          $v = COALESCE($k,'');
+        }*/
+        
+        $attributes[] = $v;
+      }
+        
+      // implode = 'champ1 = ?, champ2 = ?'
+      $attr_part = implode(' AND ', $attr_part);
+      //var_dump("SELECT * FROM {$this->table} WHERE {$attr_part} ", $attributes);
+      return $this->query("SELECT * FROM {$this->table} WHERE {$attr_part} ", $attributes, true ); // True : retourne un seul enregistrement 
     }
-
+    
     /**
      * On va chercher un résultat
      * @param array $tab : function => field
@@ -92,34 +96,34 @@ class Table
         
         // implode = 'titre = ?, contenu = ?'
         $sql_part = implode(', ', $sql_parts);
-        $attr_part = implode('AND ', $attr_part);
+        $attr_part = implode(' AND ', $attr_part);
         
         return $this->query("UPDATE {$this->table} SET {$sql_part} WHERE {$attr_part} ", $attributes, true );
     }
     
     public function delete($id)
     {
-        return $this->query("DELETE FROM {$this->table} WHERE id = ? ", [$id], true );
+      return $this->query("DELETE FROM {$this->table} WHERE id = ? ", [$id], true );
     }
     
     /**
     * Insert simple
     * $fields =  ['field'=>'value', 'field2'=>'value2']
     */
-    public function create($fields)
+    public function insert($fields)
     {
-        $sql_parts = [];
-        $attributes = [];
-        
-        foreach($fields as $k => $v){
-            $sql_parts[] = "$k = ?";
-            $attributes[] = $v;
-        }
-        
-        // implode = 'titre = ?, contenu = ?'
-        $sql_part = implode(', ', $sql_parts);
-        
-        return $this->query("INSERT INTO {$this->table} SET {$sql_part} ", $attributes, true );
+      $sql_parts = [];
+      $attributes = [];
+
+      foreach($fields as $k => $v){
+          $sql_parts[] = "$k = ?";
+          $attributes[] = $v;
+      }
+
+      // implode = 'titre = ?, contenu = ?'
+      $sql_part = implode(', ', $sql_parts);
+
+      return $this->query("INSERT INTO {$this->table} SET {$sql_part} ", $attributes, true );
     }
 
 
@@ -154,31 +158,35 @@ class Table
     /*
      * Retourne tous les enregistrements
      * where = array : ["nomChamp"=>"valeur"]
+     * ["in"=> ["date", "2018-05-28, 2018-05-27, 2018-06-01"]] // NE MARCHE PAS !!!
+     * IN doit se trouver dans le where et non dans condition
+     * 
      */
     public function all($where = null, $conditions = null)
     {
-        $sql_where = $attributes = '';
-        $order = isset($conditions['order']) ? "ORDER BY ".$conditions['order'] : null;
-        $limit = isset($conditions['limit']) ? "LIMIT ".$conditions['limit'] : null;
-        
-        if ($where) {
-            $sql_where = '';
-            $attributes = [];
+      $sql_where = $attributes = '';
+      //$in    = isset($conditions['in']) ? " AND ". $conditions['in'][0] ." IN ('".str_replace([',', ', '], "','",$conditions['in'][1])."')" : null;
+      $order = isset($conditions['order']) ? "ORDER BY ".$conditions['order'] : null;
+      $limit = isset($conditions['limit']) ? "LIMIT ".$conditions['limit'] : null;
 
-            foreach($where as $k => $v){
-                $attr_part[] = "$k = ?";
-                $attributes[] = $v;
-            }
+      if ($where) {
+        $sql_where = '';
+        $attributes = [];
 
-            $attr_part = implode('AND ', $attr_part);
-
-            if($where)
-            {
-                $sql_where = "WHERE {$attr_part}";    
-            }
+        foreach($where as $k => $v){
+          $attr_part[] = "$k = ?";
+          $attributes[] = $v;
         }
-        
-        return $this->query("SELECT * FROM {$this->table} {$sql_where} {$order} {$limit}", $attributes);
+
+        $attr_part = implode(' AND ', $attr_part);
+
+        if($where)
+        {
+          $sql_where = "WHERE {$attr_part}";    
+        }
+      }
+
+      return $this->query("SELECT * FROM {$this->table} {$sql_where} {$in} {$order} {$limit}", $attributes);
     }
     
     /**
@@ -188,22 +196,22 @@ class Table
     public function query($statement, $attributes = null, $one = false)
     {
         
-        if($attributes)
-        {
-            return $this->db->prepare(
-                $statement, 
-                $attributes, 
-                str_replace('Table', 'Entity', get_class($this)), 
-                $one
-            );
-        }
-        else
-        {
-            return $this->db->query(
-                $statement, 
-                str_replace('Table', 'Entity', get_class($this)), 
-                $one
-            );
-        }
+      if($attributes)
+      {
+        return $this->db->prepare(
+          $statement, 
+          $attributes, 
+          str_replace('Table', 'Entity', get_class($this)), 
+          $one
+        );
+      }
+      else
+      {
+        return $this->db->query(
+          $statement, 
+          str_replace('Table', 'Entity', get_class($this)), 
+          $one
+        );
+      }
     }
 }
