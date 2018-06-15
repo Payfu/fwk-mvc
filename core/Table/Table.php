@@ -165,7 +165,7 @@ class Table
     public function all($where = null, $conditions = null)
     {
       $sql_where = $attributes = '';
-      //$in    = isset($conditions['in']) ? " AND ". $conditions['in'][0] ." IN ('".str_replace([',', ', '], "','",$conditions['in'][1])."')" : null;
+      $in    = isset($conditions['in']) ? " AND ". $conditions['in'][0] ." IN ('".str_replace([',', ', '], "','",$conditions['in'][1])."')" : null;
       $order = isset($conditions['order']) ? "ORDER BY ".$conditions['order'] : null;
       $limit = isset($conditions['limit']) ? "LIMIT ".$conditions['limit'] : null;
 
