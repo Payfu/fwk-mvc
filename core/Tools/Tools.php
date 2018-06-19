@@ -3,7 +3,6 @@
 
 namespace Core\Tools;
 
-
 /**
  * Fonctions diverses et utiles
  *
@@ -40,6 +39,19 @@ class Tools
 
         return $str;
     }
+    
+    
+    /*
+     * Convertisseur de date
+     * $date = 04/05/1979
+     * $patternIn = "d/m/Y"
+     * $patternOut = "Y-m-d"
+     */
+    public function dateToDate(string $date, string $patternIn, string $patternOut ): string{
+      $d = \DateTime::createFromFormat($patternIn, $date);
+      return $d->format($patternOut);
+    }
+    
 
     /*
      * Suppression de TOUS les caractères spéciaux (accent inclus), on ne garde que les alphanum 
@@ -87,13 +99,11 @@ class Tools
 
     public function sendEmail($emailTo, $from, $subject, $message) : bool
     {
-        $rn = "\n"; // Passage à la ligne (normalement on \r\n mais hotmail crée un brug en convertissant le \n en \r\n)
-
+        $rn = "\n"; // Passage à la ligne (normalement on \r\n mais hotmail crée un bug en convertissant le \n en \r\n)
         
         $headers =  'From: '. $from . $rn .
                     'Reply-To: '. $from . $rn .
                     'X-Mailer: PHP/' . phpversion();
-
 
         return mail($emailTo, $subject, $message, $headers);
     }
